@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
+import pandas as pd
 
 # ---------------- PAGE CONFIG ----------------
 
@@ -10,47 +11,50 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ---------------- SESSION VARIABLES ----------------
+# ---------------- SAFE CSS ----------------
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+st.markdown("""
+<style>
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-if "username" not in st.session_state:
-    st.session_state.username = ""
+# ---------------- SESSION STATE ----------------
 
-if "health_score" not in st.session_state:
-    st.session_state.health_score = 75
+defaults = {
+    "logged_in": False,
+    "username": "",
+    "page": "Home",
+    "health_score": 75,
+    "badge": "Beginner",
+    "risk_level": "Unknown",
+    "streak": 1,
+    "assessment_done": False,
+    "history": [75],
+    "uploaded_image": None
+}
 
-if "badge" not in st.session_state:
-    st.session_state.badge = "Beginner"
-
-if "streak" not in st.session_state:
-    st.session_state.streak = 1
-
-if "page" not in st.session_state:
-    st.session_state.page = "Home"
-
-if "assessment_done" not in st.session_state:
-    st.session_state.assessment_done = False
-
-if "risk_level" not in st.session_state:
-    st.session_state.risk_level = "Unknown"
-
-if "health_history" not in st.session_state:
-    st.session_state.health_history = [75]
-
-if "uploaded_image" not in st.session_state:
-    st.session_state.uploaded_image = None
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 # ---------------- SIDEBAR ----------------
 
 with st.sidebar:
 
-    st.markdown("# 🧠 POSTURE IQ")
+    st.title("🧠 POSTURE IQ")
 
     if st.session_state.logged_in:
 
         st.success(f"Welcome {st.session_state.username}")
+
+        if st.button("🏠 Home"):
+            st.session_state.page = "Home"
 
         if st.button("📊 Dashboard"):
             st.session_state.page = "Dashboard"
@@ -83,25 +87,31 @@ with st.sidebar:
 if st.session_state.page == "Home":
 
     st.markdown("""
-    <div class='hero'>
+    <div class="card">
         <h1>ERGOGUARD PRO</h1>
-        <h3>AI Powered Workstation Safety & Ergonomic Health Assistant</h3>
+        <p>AI Powered Workstation Health Assistant</p>
     </div>
     """, unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
+    st.markdown("### 🤖 AI Coach")
 
-    with c1:
-        st.markdown("### 🤖 AI Coach")
+    if st.session_state.health_score >= 80:
+        st.success("Excellent posture detected")
+    elif st.session_state.health_score >= 60:
+        st.warning("Moderate risk detected")
+    else:
+        st.error("High risk detected")
 
-        if st.session_state.health_score >= 80:
-            st.success("Excellent posture detected")
+    col1, col2, col3 = st.columns(3)
 
-        elif st.session_state.health_score >= 60:
-            st.warning("Moderate ergonomic risk")
+    with col1:
+        st.metric("Health Score", st.session_state.health_score)
 
-        else:
-            st.error("High ergonomic risk detected")
+    with col2:
+        st.metric("Badge", st.session_state.badge)
+
+    with col3:
+        st.metric("Risk", st.session_state.risk_level)
 
 # ---------------- LOGIN ----------------
 
@@ -113,11 +123,15 @@ elif st.session_state.page == "Login":
     password = st.text_input("Password", type="password")
 
     if st.button("LOGIN"):
+
         if email and password:
             st.session_state.logged_in = True
             st.session_state.username = email.split("@")[0]
             st.session_state.page = "Dashboard"
             st.rerun()
+
+        else:
+            st.error("Fill all fields")
 
 # ---------------- SIGNUP ----------------
 
@@ -130,13 +144,14 @@ elif st.session_state.page == "Signup":
     password = st.text_input("Password", type="password")
 
     if st.button("CREATE ACCOUNT"):
+
         if name and email and password:
             st.session_state.logged_in = True
             st.session_state.username = name
             st.session_state.page = "Dashboard"
             st.rerun()
 
-# ---------------- DASHBOARD (UPGRADED) ----------------
+# ---------------- DASHBOARD (FULL V3 UPGRADE) ----------------
 
 elif st.session_state.page == "Dashboard":
 
@@ -145,52 +160,55 @@ elif st.session_state.page == "Dashboard":
     c1, c2, c3, c4 = st.columns(4)
 
     with c1:
-        st.metric("Health Score", f"{st.session_state.health_score}%")
+        st.metric("Health Score", st.session_state.health_score)
 
     with c2:
         st.metric("Badge", st.session_state.badge)
 
     with c3:
-        st.metric("Streak", st.session_state.streak)
+        st.metric("Risk Level", st.session_state.risk_level)
 
     with c4:
-        st.metric("Risk", st.session_state.risk_level)
+        st.metric("Streak", st.session_state.streak)
 
     # ---------------- GAUGE ----------------
 
-    st.markdown("## ⛽ Risk Meter")
+    st.markdown("## ⛽ Health Gauge")
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=st.session_state.health_score,
-        title={'text': "Posture Health"},
         gauge={
-            'axis': {'range': [0, 100]},
-            'steps': [
-                {'range': [0, 60], 'color': "red"},
-                {'range': [60, 80], 'color': "orange"},
-                {'range': [80, 100], 'color': "green"},
-            ]
+            "axis": {"range": [0, 100]},
+            "steps": [
+                {"range": [0, 60], "color": "red"},
+                {"range": [60, 80], "color": "orange"},
+                {"range": [80, 100], "color": "green"},
+            ],
         }
     ))
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # ---------------- TREND ----------------
+    # ---------------- HISTORY GRAPH ----------------
 
     st.markdown("## 📈 Health Trend")
 
-    st.session_state.health_history.append(st.session_state.health_score)
+    st.session_state.history.append(st.session_state.health_score)
 
     fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(y=st.session_state.health_history, mode="lines+markers"))
+    fig2.add_trace(go.Scatter(
+        y=st.session_state.history,
+        mode="lines+markers"
+    ))
+
     st.plotly_chart(fig2, use_container_width=True)
 
-    # ---------------- UPLOAD ----------------
+    # ---------------- IMAGE UPLOAD ----------------
 
-    st.markdown("## 📷 Upload Workstation Image")
+    st.markdown("## 📷 Workstation Analysis")
 
-    img = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"])
+    img = st.file_uploader("Upload image", type=["png", "jpg", "jpeg"])
 
     if img:
         st.image(img, use_container_width=True)
@@ -201,26 +219,33 @@ elif st.session_state.page == "Dashboard":
 
     if st.button("Generate Report"):
 
-        avg = sum(st.session_state.health_history[-7:]) / len(st.session_state.health_history[-7:])
+        avg = sum(st.session_state.history[-7:]) / len(st.session_state.history[-7:])
 
-        st.text_area("Report",
-            f"Weekly Avg: {avg:.2f}\nBadge: {st.session_state.badge}\nRisk: {st.session_state.risk_level}",
+        st.text_area(
+            "Report",
+            f"Average Score: {avg:.2f}\nBadge: {st.session_state.badge}\nRisk: {st.session_state.risk_level}",
             height=200
         )
 
-    # ---------------- ACHIEVEMENT ----------------
+    # ---------------- ACHIEVEMENTS ----------------
 
     st.markdown("## 🏆 Achievements")
 
     if st.session_state.health_score >= 80:
         st.balloons()
-        st.success("🥇 Ergonomic Master")
+        st.success("🥇 Pro Master Unlocked")
+
+        st.session_state.badge = "Pro Master"
 
     elif st.session_state.health_score >= 60:
         st.info("🥈 Healthy User")
 
+        st.session_state.badge = "Healthy User"
+
     else:
         st.warning("🥉 Beginner")
+
+        st.session_state.badge = "Beginner"
 
 # ---------------- PROFILE ----------------
 
@@ -247,7 +272,7 @@ elif st.session_state.page == "Assessment":
         st.session_state.health_score = score
 
         if score >= 80:
-            st.session_state.badge = "Ergonomic Master"
+            st.session_state.badge = "Pro Master"
             st.session_state.risk_level = "Low"
 
         elif score >= 60:
@@ -257,5 +282,7 @@ elif st.session_state.page == "Assessment":
         else:
             st.session_state.badge = "Beginner"
             st.session_state.risk_level = "High"
+
+        st.session_state.history.append(score)
 
         st.rerun()
