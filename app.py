@@ -189,36 +189,31 @@ if st.session_state.page == "Home":
 
     st.write("")
 
-    c1,c2,c3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
     with c1:
-       with right:
 
-    st.markdown("### 🤖 AI Coach")
+        st.markdown("### 🤖 AI Coach")
 
-    if st.session_state.health_score >= 80:
+        if st.session_state.health_score >= 80:
 
-        st.success("""
-        Excellent posture detected.
+            st.success("""
+            Excellent posture detected.
 
-        ✔ Maintain current setup
+            ✔ Maintain current setup  
+            ✔ Continue stretching  
+            ✔ Keep taking breaks  
+            """)
 
-        ✔ Continue stretching
+        elif st.session_state.health_score >= 60:
 
-        ✔ Keep taking breaks
-        """)
+            st.warning("""
+            Moderate ergonomic risk.
 
-    elif st.session_state.health_score >= 60:
-
-        st.warning("""
-        Moderate ergonomic risk.
-
-        • Improve monitor height
-
-        • Adjust chair support
-
-        • Take more breaks
-        """)
+            • Improve monitor height  
+            • Adjust chair support  
+            • Take more breaks  
+            """)
 
     else:
 
