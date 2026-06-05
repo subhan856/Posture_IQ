@@ -17,41 +17,57 @@ st.set_page_config(
 )
 
 # =========================================================
-# MODERN UI (SAFE ADDITION ONLY)
+# MODERN UI (SAAS STYLE ADD ON - IMAGE LIKE DASHBOARD)
 # =========================================================
 
 st.markdown("""
 <style>
+
 .main {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    background: #0b1220;
 }
 
-.card {
+/* HERO */
+.hero {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    padding: 40px;
+    border-radius: 20px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* FEATURE CARD */
+.feature-card {
     background: rgba(255,255,255,0.06);
     padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 15px;
-    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
-h1,h2,h3 { color:white; }
+/* HOVER */
+.feature-card:hover {
+    transform: scale(1.03);
+    transition: 0.3s;
+}
 
+/* METRICS */
 div[data-testid="metric-container"] {
-    background: rgba(255,255,255,0.05);
-    padding: 10px;
-    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    padding: 12px;
+    border-radius: 12px;
 }
 
-.stButton button {
-    background: linear-gradient(90deg,#00c6ff,#0072ff);
-    color:white;
-    border-radius:10px;
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background: #0f172a;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# SESSION STATE (FULL SAFE INIT)
+# SESSION STATE (FIX + SAFE ADD)
 # =========================================================
 
 defaults = {
@@ -67,12 +83,12 @@ defaults = {
     "reports": []
 }
 
-for k,v in defaults.items():
+for k, v in defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
 # =========================================================
-# PDF SYSTEM (UNCHANGED + SAFE)
+# PDF SYSTEM
 # =========================================================
 
 def create_pdf(user, score, badge, risk):
@@ -91,7 +107,7 @@ def create_pdf(user, score, badge, risk):
     return buffer
 
 # =========================================================
-# AI HYBRID QUESTION ENGINE (NEW ADDITION)
+# AI QUESTION ENGINE (HYBRID)
 # =========================================================
 
 def generate_ai_questions(score):
@@ -108,13 +124,11 @@ def generate_ai_questions(score):
             "Do you slouch often?",
             "Do you ignore breaks?"
         ]
-
     elif score < 80:
         extra = [
             "Is your wrist straight while typing?",
             "Do you lean forward while working?"
         ]
-
     else:
         extra = [
             "Do you maintain posture even when tired?",
@@ -124,11 +138,10 @@ def generate_ai_questions(score):
     return base + extra
 
 # =========================================================
-# SIDEBAR (ORIGINAL STYLE PRESERVED)
+# SIDEBAR
 # =========================================================
 
 with st.sidebar:
-
     st.title("🧠 POSTURE IQ AI")
 
     if st.button("🏠 Home"):
@@ -147,19 +160,33 @@ with st.sidebar:
         st.session_state.page = "Reports"
 
 # =========================================================
-# HOME PAGE (UNCHANGED + POLISHED)
+# HOME PAGE (UPGRADED LIKE IMAGE UI)
 # =========================================================
 
 if st.session_state.page == "Home":
 
     st.markdown("""
-    <div class='card'>
-        <h1>🧠 POSTURE IQ AI SYSTEM</h1>
-        <p>AI Powered Ergonomic Health Analyzer</p>
+    <div class="hero">
+        <h1>ICT in Health & Ergonomics</h1>
+        <p>Workstation Safety Scorer — Advanced Assessment Platform</p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.info("Smart posture tracking + AI adaptive assessment system")
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        st.markdown("<div class='feature-card'><h2>35</h2><p>Assessment Questions</p></div>", unsafe_allow_html=True)
+
+    with c2:
+        st.markdown("<div class='feature-card'><h2>7</h2><p>Evaluation Categories</p></div>", unsafe_allow_html=True)
+
+    with c3:
+        st.markdown("<div class='feature-card'><h2>ISO 9241</h2><p>Ergonomics Standard</p></div>", unsafe_allow_html=True)
+
+    with c4:
+        st.markdown("<div class='feature-card'><h2>PDF</h2><p>Professional Reports</p></div>", unsafe_allow_html=True)
+
+    st.info("Smart AI posture tracking + analytics system")
 
 # =========================================================
 # LOGIN
@@ -199,16 +226,14 @@ elif st.session_state.page == "Signup":
             st.rerun()
 
 # =========================================================
-# DASHBOARD (FULL ORIGINAL + AI + GRAPH UPGRADE)
+# DASHBOARD (UPGRADED GRAPHICS + RADAR)
 # =========================================================
 
 elif st.session_state.page == "Dashboard":
 
-    st.markdown("<div class='card'><h1>📊 DASHBOARD AI PRO</h1></div>", unsafe_allow_html=True)
+    st.markdown("<div class='hero'><h1>📊 DASHBOARD PRO AI</h1></div>", unsafe_allow_html=True)
 
-    # ---------------- METRICS ----------------
-
-    c1,c2,c3,c4 = st.columns(4)
+    c1, c2, c3, c4 = st.columns(4)
 
     with c1:
         st.metric("Score", st.session_state.health_score)
@@ -230,50 +255,69 @@ elif st.session_state.page == "Dashboard":
         mode="gauge+number",
         value=st.session_state.health_score,
         gauge={
-            "axis":{"range":[0,100]},
-            "steps":[
-                {"range":[0,60],"color":"red"},
-                {"range":[60,80],"color":"orange"},
-                {"range":[80,100],"color":"green"}
+            "axis": {"range": [0, 100]},
+            "steps": [
+                {"range": [0, 60], "color": "red"},
+                {"range": [60, 80], "color": "orange"},
+                {"range": [80, 100], "color": "green"}
             ]
         }
     ))
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # ---------------- TREND GRAPH ----------------
+    # ---------------- TREND ----------------
 
-    st.subheader("📈 Health Trend")
+    st.subheader("📈 Trend Graph")
 
     st.session_state.history.append(st.session_state.health_score)
 
-    df = pd.DataFrame({"score": st.session_state.history})
-
     fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(y=df["score"], mode="lines+markers"))
-
+    fig2.add_trace(go.Scatter(y=st.session_state.history, mode="lines+markers"))
     st.plotly_chart(fig2, use_container_width=True)
 
-    # ---------------- AI QUESTIONS (HYBRID SYSTEM) ----------------
+    # ---------------- RADAR (NEW UPGRADE) ----------------
+
+    st.subheader("📊 Posture Category Analysis")
+
+    radar = go.Figure()
+
+    radar.add_trace(go.Scatterpolar(
+        r=[4,3,5,2,4,5],
+        theta=[
+            "Posture",
+            "Chair",
+            "Screen",
+            "Keyboard",
+            "Lighting",
+            "Breaks"
+        ],
+        fill='toself'
+    ))
+
+    radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0,5])))
+
+    st.plotly_chart(radar, use_container_width=True)
+
+    # ---------------- AI QUESTIONS ----------------
 
     st.subheader("🧠 AI Adaptive Questions")
 
     if st.button("Generate AI Questions"):
         st.session_state.ai_questions = generate_ai_questions(st.session_state.health_score)
 
-    for i,q in enumerate(st.session_state.ai_questions):
-        st.radio(q, ["Yes","No"], key=f"ai_{i}")
+    for i, q in enumerate(st.session_state.ai_questions):
+        st.radio(q, ["Yes", "No"], key=f"ai_{i}")
 
-    # ---------------- IMAGE UPLOAD ----------------
+    # ---------------- IMAGE ----------------
 
     st.subheader("📷 Workstation Scan")
 
-    img = st.file_uploader("Upload Image", type=["png","jpg","jpeg"])
-
+    img = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"])
     if img:
         st.image(img, use_container_width=True)
 
-    # ---------------- BADGE SYSTEM ----------------
+    # ---------------- BADGE ----------------
 
     if st.session_state.health_score >= 80:
         st.session_state.badge = "Elite"
@@ -310,18 +354,17 @@ elif st.session_state.page == "Dashboard":
 elif st.session_state.page == "Profile":
 
     st.title("PROFILE")
-
-    st.write("User:", st.session_state.username)
-    st.write("Badge:", st.session_state.badge)
-    st.write("Score:", st.session_state.health_score)
+    st.write(st.session_state.username)
+    st.write(st.session_state.badge)
+    st.write(st.session_state.health_score)
 
 # =========================================================
-# ASSESSMENT (HYBRID QUESTIONS ADDED HERE TOO)
+# ASSESSMENT
 # =========================================================
 
 elif st.session_state.page == "Assessment":
 
-    st.title("ASSESSMENT SYSTEM")
+    st.title("ASSESSMENT")
 
     q = generate_ai_questions(st.session_state.health_score)
 
@@ -330,7 +373,7 @@ elif st.session_state.page == "Assessment":
     for i, question in enumerate(q):
         answers.append(st.slider(question, 1, 5, 3, key=f"q_{i}"))
 
-    if st.button("CALCULATE SCORE"):
+    if st.button("CALCULATE"):
 
         score = int((sum(answers) / (len(answers)*5)) * 100)
 
@@ -339,10 +382,8 @@ elif st.session_state.page == "Assessment":
 
         if score >= 80:
             st.session_state.risk = "Low"
-
         elif score >= 60:
             st.session_state.risk = "Medium"
-
         else:
             st.session_state.risk = "High"
 
