@@ -153,9 +153,9 @@ with st.sidebar:
         if st.button("📊 Dashboard"):
             st.session_state.page = "Dashboard"
 
-       if st.button("📝 Assessment"):
+        if st.button("📝 Assessment"):
             st.session_state.page = "Assessment"
-       
+
         if st.button("👤 Profile"):
             st.session_state.page = "Profile"
 
@@ -176,7 +176,6 @@ with st.sidebar:
 
         if st.button("📝 Signup"):
             st.session_state.page = "Signup"
-
 # ---------------- HOME ----------------
 
 if st.session_state.page == "Home":
