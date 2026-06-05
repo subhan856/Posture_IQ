@@ -29,6 +29,11 @@ if "streak" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 
+if "assessment_done" not in st.session_state:
+    st.session_state.assessment_done = False
+
+if "risk_level" not in st.session_state:
+    st.session_state.risk_level = "Unknown"
 # ---------------- CUSTOM CSS ----------------
 
 st.markdown("""
@@ -148,6 +153,9 @@ with st.sidebar:
         if st.button("📊 Dashboard"):
             st.session_state.page = "Dashboard"
 
+        if st.button("📝 Assessment"):
+    st.session_state.page = "Assessment"
+
         if st.button("👤 Profile"):
             st.session_state.page = "Profile"
 
@@ -185,12 +193,45 @@ if st.session_state.page == "Home":
     c1,c2,c3 = st.columns(3)
 
     with c1:
-        st.markdown("""
-        <div class='feature'>
-            <h2>🧠 AI Coach</h2>
-            <p>Smart posture recommendations.</p>
-        </div>
-        """, unsafe_allow_html=True)
+       with right:
+
+    st.markdown("### 🤖 AI Coach")
+
+    if st.session_state.health_score >= 80:
+
+        st.success("""
+        Excellent posture detected.
+
+        ✔ Maintain current setup
+
+        ✔ Continue stretching
+
+        ✔ Keep taking breaks
+        """)
+
+    elif st.session_state.health_score >= 60:
+
+        st.warning("""
+        Moderate ergonomic risk.
+
+        • Improve monitor height
+
+        • Adjust chair support
+
+        • Take more breaks
+        """)
+
+    else:
+
+        st.error("""
+        High ergonomic risk.
+
+        • Improve workstation setup
+
+        • Reduce continuous sitting
+
+        • Follow posture exercises
+        """)
 
     with c2:
         st.markdown("""
@@ -212,7 +253,7 @@ if st.session_state.page == "Home":
 
     st.markdown("""
     <div class='card'>
-    <h2>🚀 Why ErgoGuard Pro?</h2>
+    <h2>🚀 Why POSTURE IQ?</h2>
 
     <ul>
     <li>AI Ergonomic Assessment</li>
@@ -369,6 +410,8 @@ elif st.session_state.page == "Dashboard":
 
     st.markdown("## 🏆 Achievements")
 
+    st.write(advice)
+
     a,b,c = st.columns(3)
 
     with a:
@@ -405,6 +448,93 @@ elif st.session_state.page == "Profile":
 
     {st.session_state.health_score}%
     """)
+
+elif st.session_state.page == "Assessment":
+
+    st.title("📝 POSTURE IQ Assessment")
+
+    q1 = st.slider(
+        "Monitor Height",
+        1,5,3
+    )
+
+    q2 = st.slider(
+        "Chair Comfort",
+        1,5,3
+    )
+
+    q3 = st.slider(
+        "Screen Distance",
+        1,5,3
+    )
+
+    q4 = st.slider(
+        "Lighting Quality",
+        1,5,3
+    )
+
+    q5 = st.slider(
+        "Break Frequency",
+        1,5,3
+    )
+
+    q6 = st.slider(
+        "Back Support",
+        1,5,3
+    )
+
+    q7 = st.slider(
+        "Keyboard Position",
+        1,5,3
+    )
+
+    q8 = st.slider(
+        "Mouse Position",
+        1,5,3
+    )
+
+    q9 = st.slider(
+        "Neck Posture",
+        1,5,3
+    )
+
+    q10 = st.slider(
+        "Workstation Organization",
+        1,5,3
+    )
+
+    if st.button("🚀 Calculate Score"):
+
+        total = (
+            q1+q2+q3+q4+q5+
+            q6+q7+q8+q9+q10
+        )
+
+        score = int((total/50)*100)
+
+        st.session_state.health_score = score
+
+        if score >= 80:
+
+            st.session_state.risk_level = "Low Risk"
+
+            st.session_state.badge = "Ergonomic Master"
+
+        elif score >= 60:
+
+            st.session_state.risk_level = "Moderate Risk"
+
+            st.session_state.badge = "Healthy User"
+
+        else:
+
+            st.session_state.risk_level = "High Risk"
+
+            st.session_state.badge = "Beginner"
+
+        st.session_state.assessment_done = True
+
+        st.rerun()
 # ---------------- FOOTER ----------------
 
 st.markdown("""
