@@ -1,3 +1,10 @@
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(
+    page_title=" POSTURE IQ ",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -13,16 +20,6 @@ if "badge" not in st.session_state:
 if "streak" not in st.session_state:
     st.session_state.streak = 1
 import streamlit as st
-
-# ---------------- PAGE CONFIG ----------------
-
-st.set_page_config(
-    page_title=" POSTURE IQ ",
-    page_icon="🧠",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # ---------------- CUSTOM CSS ----------------
 
 st.markdown("""
