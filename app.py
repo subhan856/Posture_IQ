@@ -1,9 +1,23 @@
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "username" not in st.session_state:
+    st.session_state.username = ""
+
+if "health_score" not in st.session_state:
+    st.session_state.health_score = 75
+
+if "badge" not in st.session_state:
+    st.session_state.badge = "Beginner"
+
+if "streak" not in st.session_state:
+    st.session_state.streak = 1
 import streamlit as st
 
 # ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
-    page_title="ErgoGuard Pro",
+    page_title=" POSTURE IQ ",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -117,16 +131,37 @@ if "page" not in st.session_state:
 
 with st.sidebar:
 
-    st.markdown("# ⚡ ErgoGuard Pro")
+    st.markdown("# 🧠 POSTURE IQ")
 
-    if st.button("🏠 Home"):
-        st.session_state.page = "Home"
+    if st.session_state.logged_in:
 
-    if st.button("🔐 Login"):
-        st.session_state.page = "Login"
+        st.success(
+            f"Welcome {st.session_state.username}"
+        )
 
-    if st.button("📝 Sign Up"):
-        st.session_state.page = "Signup"
+        if st.button("📊 Dashboard"):
+            st.session_state.page = "Dashboard"
+
+        if st.button("👤 Profile"):
+            st.session_state.page = "Profile"
+
+        if st.button("🚪 Logout"):
+
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.page = "Home"
+            st.rerun()
+
+    else:
+
+        if st.button("🏠 Home"):
+            st.session_state.page = "Home"
+
+        if st.button("🔐 Login"):
+            st.session_state.page = "Login"
+
+        if st.button("📝 Signup"):
+            st.session_state.page = "Signup"
 
 # ---------------- HOME ----------------
 
@@ -191,7 +226,7 @@ elif st.session_state.page == "Login":
 
     st.markdown("""
     <div class='hero'>
-    <h1>LOGIN</h1>
+    <h1>POSTURE IQ LOGIN</h1>
     </div>
     """, unsafe_allow_html=True)
 
@@ -203,39 +238,167 @@ elif st.session_state.page == "Login":
     )
 
     if st.button("LOGIN"):
-        st.success(
-            "Firebase Login Coming In Part 2"
-        )
+
+        if email and password:
+
+            st.session_state.logged_in = True
+
+            st.session_state.username = email.split("@")[0]
+
+            st.session_state.page = "Dashboard"
+
+            st.rerun()
+
+        else:
+
+            st.error("Enter Email & Password")
 
 # ---------------- SIGNUP ----------------
-
 elif st.session_state.page == "Signup":
 
     st.markdown("""
     <div class='hero'>
-    <h1>SIGN UP</h1>
+    <h1>CREATE ACCOUNT</h1>
     </div>
     """, unsafe_allow_html=True)
 
     name = st.text_input("Full Name")
 
-    email = st.text_input("Email Address")
+    email = st.text_input("Email")
 
     password = st.text_input(
-        "Create Password",
-        type="password"
-    )
-
-    confirm = st.text_input(
-        "Confirm Password",
+        "Password",
         type="password"
     )
 
     if st.button("CREATE ACCOUNT"):
-        st.success(
-            "Firebase Signup Coming In Part 2"
+
+        if name and email and password:
+
+            st.session_state.logged_in = True
+
+            st.session_state.username = name
+
+            st.session_state.page = "Dashboard"
+
+            st.rerun()
+
+        else:
+
+            st.error("Fill All Fields")
+
+        
+elif st.session_state.page == "Dashboard":
+
+    st.markdown("""
+    <div class='hero'>
+    <h1>POSTURE IQ DASHBOARD</h1>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c1,c2,c3,c4 = st.columns(4)
+
+    with c1:
+        st.metric(
+            "Health Score",
+            f"{st.session_state.health_score}%"
         )
 
+    with c2:
+        st.metric(
+            "Current Badge",
+            st.session_state.badge
+        )
+
+    with c3:
+        st.metric(
+            "Daily Streak",
+            st.session_state.streak
+        )
+
+    with c4:
+        st.metric(
+            "Risk Level",
+            "Low"
+        )
+
+    st.divider()
+
+    left,right = st.columns(2)
+
+    with left:
+
+        st.markdown("""
+        ### 🎯 Today's Mission
+
+        ✅ Drink 2L Water
+
+        ✅ Take 5 Stretch Breaks
+
+        ✅ Maintain Eye Level Screen
+
+        ✅ Walk For 15 Minutes
+        """)
+
+    with right:
+
+        st.markdown("""
+        ### 🤖 AI Coach
+
+        Your workstation posture is
+        currently good.
+
+        Focus on:
+
+        • Neck alignment
+
+        • Wrist position
+
+        • Screen distance
+
+        • Regular stretching
+        """)
+
+    st.divider()
+
+    st.markdown("## 🏆 Achievements")
+
+    a,b,c = st.columns(3)
+
+    with a:
+        st.success("🥉 Beginner")
+
+    with b:
+        st.info("🥈 Healthy User")
+
+    with c:
+        st.warning("🥇 Ergonomic Master")
+
+elif st.session_state.page == "Profile":
+
+    st.markdown("""
+    <div class='hero'>
+    <h1>USER PROFILE</h1>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    ### 👤 Username
+
+    {st.session_state.username}
+
+    ### 🏆 Badge
+
+    {st.session_state.badge}
+
+    ### 🔥 Streak
+
+    {st.session_state.streak} Days
+
+    ### ❤️ Health Score
+
+    {st.session_state.health_score}%
+    """)
 # ---------------- FOOTER ----------------
 
 st.markdown("""
