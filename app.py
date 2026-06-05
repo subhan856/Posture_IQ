@@ -180,15 +180,6 @@ with st.sidebar:
 
 if st.session_state.page == "Home":
 
-    st.markdown("""
-    <div class='hero'>
-        <h1>ERGOGUARD PRO</h1>
-        <h3>AI Powered Workstation Safety & Ergonomic Health Assistant</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.write("")
-
     c1, c2, c3 = st.columns(3)
 
     with c1:
@@ -215,18 +206,15 @@ if st.session_state.page == "Home":
             • Take more breaks  
             """)
 
-    else:
+        else:
 
-        st.error("""
-        High ergonomic risk.
+            st.error("""
+            High ergonomic risk detected.
 
-        • Improve workstation setup
-
-        • Reduce continuous sitting
-
-        • Follow posture exercises
-        """)
-
+            ⚠ Adjust posture immediately  
+            ⚠ Take frequent breaks  
+            ⚠ Reposition workstation  
+            """)
     with c2:
         st.markdown("""
         <div class='feature'>
