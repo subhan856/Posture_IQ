@@ -2,32 +2,19 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
-from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
 
 # ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
-    page_title="POSTURE IQ",
+    page_title="POSTURE IQ V5",
     page_icon="🧠",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# ---------------- SAFE CSS ----------------
-
-st.markdown("""
-<style>
-.card {
-    background: rgba(255,255,255,0.05);
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 15px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------- SESSION DEFAULTS ----------------
+# ---------------- SESSION INIT (SAFE) ----------------
 
 defaults = {
     "logged_in": False,
@@ -36,8 +23,10 @@ defaults = {
     "health_score": 75,
     "badge": "Beginner",
     "risk_level": "Unknown",
+    "streak": 1,
     "history": [75],
-    "reports": []
+    "reports": [],
+    "assessment_done": False
 }
 
 for k, v in defaults.items():
@@ -46,16 +35,16 @@ for k, v in defaults.items():
 
 # ---------------- PDF FUNCTION ----------------
 
-def generate_pdf(username, score, badge, risk):
+def create_pdf(user, score, badge, risk):
 
     buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
+    c = canvas.Canvas(buffer)
 
     c.drawString(100, 750, "POSTURE IQ REPORT")
-    c.drawString(100, 720, f"User: {username}")
-    c.drawString(100, 700, f"Health Score: {score}")
+    c.drawString(100, 720, f"User: {user}")
+    c.drawString(100, 700, f"Score: {score}")
     c.drawString(100, 680, f"Badge: {badge}")
-    c.drawString(100, 660, f"Risk Level: {risk}")
+    c.drawString(100, 660, f"Risk: {risk}")
     c.drawString(100, 640, f"Date: {datetime.now()}")
 
     c.save()
@@ -66,7 +55,7 @@ def generate_pdf(username, score, badge, risk):
 
 with st.sidebar:
 
-    st.title("🧠 POSTURE IQ")
+    st.title("🧠 POSTURE IQ V5")
 
     if st.button("🏠 Home"):
         st.session_state.page = "Home"
@@ -84,22 +73,57 @@ with st.sidebar:
 
 if st.session_state.page == "Home":
 
-    st.markdown("<div class='card'><h1>ERGOGUARD PRO</h1></div>", unsafe_allow_html=True)
+    st.title("ERGOGUARD PRO")
 
-    st.info("AI Powered Ergonomic System")
+    st.markdown("AI Powered Ergonomic Health System")
 
-    st.write("Health Score:", st.session_state.health_score)
+    st.info("Track posture, improve health, unlock achievements")
 
-# ---------------- DASHBOARD ----------------
+# ---------------- LOGIN ----------------
+
+elif st.session_state.page == "Login":
+
+    st.title("LOGIN")
+
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    if st.button("LOGIN"):
+        if email and password:
+            st.session_state.logged_in = True
+            st.session_state.username = email.split("@")[0]
+            st.session_state.page = "Dashboard"
+            st.rerun()
+
+# ---------------- SIGNUP ----------------
+
+elif st.session_state.page == "Signup":
+
+    st.title("SIGNUP")
+
+    name = st.text_input("Name")
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    if st.button("CREATE ACCOUNT"):
+        if name and email and password:
+            st.session_state.logged_in = True
+            st.session_state.username = name
+            st.session_state.page = "Dashboard"
+            st.rerun()
+
+# ---------------- DASHBOARD (V5 FULL UPGRADE) ----------------
 
 elif st.session_state.page == "Dashboard":
 
-    st.title("📊 DASHBOARD")
+    st.title("📊 POSTURE IQ DASHBOARD V5")
 
-    col1, col2, col3 = st.columns(3)
+    # ---------------- METRICS ----------------
+
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("Score", st.session_state.health_score)
+        st.metric("Health Score", st.session_state.health_score)
 
     with col2:
         st.metric("Badge", st.session_state.badge)
@@ -107,9 +131,14 @@ elif st.session_state.page == "Dashboard":
     with col3:
         st.metric("Risk", st.session_state.risk_level)
 
+    with col4:
+        st.metric("Streak", st.session_state.streak)
+
     # ---------------- GAUGE ----------------
 
-    fig = go.Figure(go.Indicator(
+    st.subheader("⛽ Health Gauge")
+
+    gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=st.session_state.health_score,
         gauge={
@@ -122,47 +151,71 @@ elif st.session_state.page == "Dashboard":
         }
     ))
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(gauge, use_container_width=True)
 
     # ---------------- TREND ----------------
 
-    st.markdown("## 📈 Trend")
+    st.subheader("📈 Health Trend")
 
     st.session_state.history.append(st.session_state.health_score)
 
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(y=st.session_state.history, mode="lines+markers"))
+    trend = go.Figure()
+    trend.add_trace(go.Scatter(
+        y=st.session_state.history,
+        mode="lines+markers"
+    ))
 
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(trend, use_container_width=True)
 
-    # ---------------- IMAGE ----------------
+    # ---------------- AI COACH ----------------
 
-    st.markdown("## 📷 Upload Workstation")
+    st.subheader("🤖 AI Coach")
 
-    img = st.file_uploader("Upload image", type=["png", "jpg", "jpeg"])
+    if st.session_state.health_score >= 80:
+        st.success("Excellent posture")
+        st.session_state.badge = "Elite"
+
+    elif st.session_state.health_score >= 60:
+        st.warning("Moderate risk")
+        st.session_state.badge = "Healthy"
+
+    else:
+        st.error("High risk detected")
+        st.session_state.badge = "Beginner"
+
+    # ---------------- IMAGE UPLOAD ----------------
+
+    st.subheader("📷 Workstation Scan (AI Ready)")
+
+    img = st.file_uploader("Upload workstation image", type=["png", "jpg", "jpeg"])
 
     if img:
         st.image(img, use_container_width=True)
 
-    # ---------------- AUTO SAVE REPORT ----------------
+    # ---------------- WEEKLY REPORT ----------------
 
-    if st.button("💾 Save Snapshot Report"):
+    st.subheader("📄 Weekly Report")
 
-        report = {
-            "time": str(datetime.now()),
-            "score": st.session_state.health_score,
-            "badge": st.session_state.badge,
-            "risk": st.session_state.risk_level
-        }
+    if st.button("Generate Report"):
+
+        avg = sum(st.session_state.history[-7:]) / len(st.session_state.history[-7:])
+
+        report = f"""
+User: {st.session_state.username}
+Score: {st.session_state.health_score}
+Average: {avg:.2f}
+Badge: {st.session_state.badge}
+Risk: {st.session_state.risk_level}
+Date: {datetime.now()}
+"""
 
         st.session_state.reports.append(report)
-        st.success("Report saved!")
+
+        st.text_area("Report", report, height=200)
 
     # ---------------- PDF DOWNLOAD ----------------
 
-    st.markdown("## 📄 Download PDF Report")
-
-    pdf = generate_pdf(
+    pdf = create_pdf(
         st.session_state.username,
         st.session_state.health_score,
         st.session_state.badge,
@@ -170,7 +223,7 @@ elif st.session_state.page == "Dashboard":
     )
 
     st.download_button(
-        "⬇ Download Report PDF",
+        "⬇ Download PDF Report",
         pdf,
         file_name="posture_iq_report.pdf",
         mime="application/pdf"
@@ -178,20 +231,27 @@ elif st.session_state.page == "Dashboard":
 
     # ---------------- ACHIEVEMENTS ----------------
 
-    st.markdown("## 🏆 Achievements")
+    st.subheader("🏆 Achievements")
 
     if st.session_state.health_score >= 80:
         st.balloons()
-        st.success("Pro Master Unlocked")
-        st.session_state.badge = "Pro Master"
+        st.success("Elite Level Unlocked")
 
     elif st.session_state.health_score >= 60:
-        st.info("Healthy User")
-        st.session_state.badge = "Healthy User"
+        st.info("Healthy Level")
 
     else:
-        st.warning("Beginner")
-        st.session_state.badge = "Beginner"
+        st.warning("Beginner Level")
+
+# ---------------- PROFILE ----------------
+
+elif st.session_state.page == "Profile":
+
+    st.title("PROFILE")
+
+    st.write("User:", st.session_state.username)
+    st.write("Badge:", st.session_state.badge)
+    st.write("Score:", st.session_state.health_score)
 
 # ---------------- ASSESSMENT ----------------
 
@@ -206,6 +266,7 @@ elif st.session_state.page == "Assessment":
         score = int((sum(q) / 50) * 100)
 
         st.session_state.health_score = score
+        st.session_state.history.append(score)
 
         if score >= 80:
             st.session_state.risk_level = "Low"
@@ -216,24 +277,16 @@ elif st.session_state.page == "Assessment":
         else:
             st.session_state.risk_level = "High"
 
-        st.session_state.history.append(score)
-
         st.rerun()
 
-# ---------------- REPORTS PAGE ----------------
+# ---------------- REPORTS ----------------
 
 elif st.session_state.page == "Reports":
 
-    st.title("📄 SAVED REPORTS")
+    st.title("📄 REPORT HISTORY")
 
     if len(st.session_state.reports) == 0:
         st.info("No reports yet")
     else:
         for r in st.session_state.reports:
-            st.markdown(f"""
-            ---
-            ⏰ {r['time']}  
-            📊 Score: {r['score']}  
-            🏅 Badge: {r['badge']}  
-            ⚠ Risk: {r['risk']}
-            """)
+            st.text(r)
